@@ -2,6 +2,7 @@ package module3;
 
 //Java utilities libraries
 import java.util.ArrayList;
+import java.util.Iterator;
 //import java.util.Collections;
 //import java.util.Comparator;
 import java.util.List;
@@ -16,6 +17,8 @@ import de.fhpotsdam.unfolding.data.PointFeature;
 import de.fhpotsdam.unfolding.marker.SimplePointMarker;
 import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
+import de.fhpotsdam.unfolding.providers.MapBox;
+import de.fhpotsdam.unfolding.providers.OpenStreetMap;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 
 //Parsing library
@@ -51,14 +54,14 @@ public class EarthquakeCityMap extends PApplet {
 
 	
 	public void setup() {
-		size(950, 600, OPENGL);
+		size(1050, 600, OPENGL);
 
 		if (offline) {
-		    map = new UnfoldingMap(this, 200, 50, 700, 500, new MBTilesMapProvider(mbTilesString));
+		    map = new UnfoldingMap(this, 300, 50, 700, 500, new MBTilesMapProvider(mbTilesString));
 		    earthquakesURL = "2.5_week.atom"; 	// Same feed, saved Aug 7, 2015, for working offline
 		}
 		else {
-			map = new UnfoldingMap(this, 200, 50, 700, 500, new Google.GoogleMapProvider());
+			map = new UnfoldingMap(this, 300, 50, 700, 500, new OpenStreetMap.OpenStreetMapProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
 			//earthquakesURL = "2.5_week.atom";
 		}
@@ -77,6 +80,10 @@ public class EarthquakeCityMap extends PApplet {
 	    // to create a new SimplePointMarker for each PointFeature in 
 	    // earthquakes.  Then add each new SimplePointMarker to the 
 	    // List markers (so that it will be added to the map in the line below)
+	    
+	    for (PointFeature earthquake: earthquakes) {
+	    	markers.add(createMarker(earthquake));
+	    }
 	    
 	    
 	    // Add the markers to the map so that they are displayed
@@ -108,6 +115,7 @@ public class EarthquakeCityMap extends PApplet {
 		// Here is an example of how to use Processing's color method to generate 
 	    // an int that represents the color yellow.  
 	    int yellow = color(255, 255, 0);
+	    
 		
 		// TODO (Step 4): Add code below to style the marker's size and color 
 	    // according to the magnitude of the earthquake.  
@@ -116,7 +124,18 @@ public class EarthquakeCityMap extends PApplet {
 	    // Rather than comparing the magnitude to a number directly, compare 
 	    // the magnitude to these variables (and change their value in the code 
 	    // above if you want to change what you mean by "moderate" and "light")
-	    
+	    if (mag < THRESHOLD_LIGHT) {
+			marker.setColor(color(0, 0, 0));
+			marker.setRadius(5.0f);
+		}
+	    if (mag < THRESHOLD_MODERATE && mag > THRESHOLD_LIGHT) {
+	    	marker.setColor(color(255, 255, 0));
+			marker.setRadius(10.0f);
+		}
+	    if (mag > THRESHOLD_MODERATE) {
+	    	marker.setColor(color(255, 0, 0));
+			marker.setRadius(20.0f);
+		}
 	    
 	    // Finally return the marker
 	    return marker;
@@ -134,6 +153,45 @@ public class EarthquakeCityMap extends PApplet {
 	private void addKey() 
 	{	
 		// Remember you can use Processing's graphics methods here
+		
+		// Setting up of the Key window
+		fill(255, 255, 230);
+		rect(50, 50, 200, 250);
+		
+		// Setting up of 5+ Mag marker key
+		fill(255, 0, 0);
+		ellipse(100, 120, 20, 20);
+		
+		// Setting up of 4+ Mag marker key
+		fill(255, 255, 0);
+		ellipse(100, 170, 10, 10);
+		
+		// Setting up of less destructive Mag marker key
+		fill(0, 0, 0);
+		ellipse(100, 220, 5, 5);
+		
+		// Setting font color
+		fill(0, 0, 0);
+		
+		// Setting up Key header
+		textAlign(CENTER, CENTER);
+		textSize(16);
+		text("Earthquake Key", 150, 70);
+		
+		// Setting up 5.0+ Magnitude
+		textAlign(LEFT, CENTER);
+		textSize(12);
+		text("5.0+ Magnitude", 125, 120);
+		
+		// Setting up 4.0+ Magnitude
+		textAlign(LEFT, CENTER);
+		textSize(12);
+		text("4.0+ Magnitude", 125, 170);
+		
+		// Setting up Below 4.0
+		textAlign(LEFT, CENTER);
+		textSize(12);
+		text("Below 4.0", 125, 220);
 	
 	}
 }
